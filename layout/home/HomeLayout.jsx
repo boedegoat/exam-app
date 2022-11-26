@@ -6,13 +6,26 @@ import HomeNavbar from './HomeNavbar'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { twMerge } from 'tailwind-merge'
+import { makeSlug } from '@/utils'
 
-const HomeLayout = ({ children }) => {
+const tabs = [
+    {
+        name: 'Active Test',
+        icon: BookOpenIcon,
+    },
+    {
+        name: 'Completed Test',
+        icon: CheckCircleIcon,
+    },
+]
+
+const HomeLayout = ({ children, home = true, centerText, title }) => {
     const [activeTab, setActiveTab] = useState('')
     const router = useRouter()
 
     useEffect(() => {
         const path = router.pathname
+
         if (path !== '/') {
             setActiveTab(path.replace('/', ''))
         } else {
@@ -23,32 +36,31 @@ const HomeLayout = ({ children }) => {
     return (
         <main>
             <Head>
-                <title>Exam App</title>
+                <title>{title ? `${title} - Exam App` : 'Exam App'}</title>
             </Head>
-            <HomeNavbar />
+            <HomeNavbar home={home} centerText={centerText} />
             <div className='container-xl mt-10 mb-8'>
-                <div className='tabs !flex-nowrap overflow-x-auto mb-8'>
-                    <Link
-                        href='/'
-                        className={twMerge(
-                            'tab w-full !flex-nowrap whitespace-nowrap tab-bordered',
-                            activeTab === 'active-test' && 'tab-active'
-                        )}
-                    >
-                        <BookOpenIcon className='w-5 mr-2' />
-                        Active Test
-                    </Link>
-                    <Link
-                        href='/completed-test'
-                        className={twMerge(
-                            'tab w-full !flex-nowrap whitespace-nowrap tab-bordered',
-                            activeTab === 'completed-test' && 'tab-active'
-                        )}
-                    >
-                        <CheckCircleIcon className='w-5 mr-2' />
-                        Completed Test
-                    </Link>
-                </div>
+                {home && (
+                    <div className='tabs !flex-nowrap overflow-x-auto mb-8'>
+                        {tabs.map((tab, index) => {
+                            const tabSlug = makeSlug(tab.name)
+
+                            return (
+                                <Link
+                                    key={index}
+                                    href={index === 0 ? '/' : `/${tabSlug}`}
+                                    className={twMerge(
+                                        'tab w-full !flex-nowrap whitespace-nowrap tab-bordered',
+                                        activeTab === tabSlug && 'tab-active'
+                                    )}
+                                >
+                                    <tab.icon className='w-5 mr-2' />
+                                    {tab.name}
+                                </Link>
+                            )
+                        })}
+                    </div>
+                )}
                 {children}
             </div>
         </main>
