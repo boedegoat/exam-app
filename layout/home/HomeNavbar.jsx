@@ -6,7 +6,7 @@ const HomeNavbar = ({ home, centerText }) => {
         <div className='sticky top-0 shadow-lg shadow-gray-100 bg-white'>
             <div className='container'>
                 <div className='navbar'>
-                    <div className=''>
+                    <div>
                         {home ? (
                             <Link href='/' className='text-lg font-semibold'>
                                 Exam App

@@ -71,6 +71,7 @@ const TestDetailsPage = () => {
                         'btn btn-primary w-full',
                         data.status !== 'live' && 'btn-disabled'
                     )}
+                    onClick={() => document.documentElement.requestFullscreen()}
                 >
                     Kerjakan Sekarang
                 </Link>
