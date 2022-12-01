@@ -13,6 +13,7 @@ import { useLocalStorage } from 'usehooks-ts'
 
 import TestLiveNavbar from '@/layout/test-live/TestLiveNavbar'
 import { tests } from '@/dummy/tests'
+import QuestionListModal from '@/components/test-live/QuestionListModal'
 
 const TestLivePage = () => {
     const router = useRouter()
@@ -27,6 +28,7 @@ const TestLivePage = () => {
         () => tests.find((test) => test.id === testId),
         [testId]
     )
+    const [openQuestionList, setOpenQuestionList] = useState(false)
 
     useEffect(() => {
         setLoading(true)
@@ -61,6 +63,27 @@ const TestLivePage = () => {
 
     if (loading) return null
 
+    const setDoubtHandler = () => {
+        setDoubts((prevs) => {
+            if (prevs.includes(+number)) {
+                const index = prevs.indexOf(+number)
+                return [...prevs.slice(0, index), ...prevs.slice(index + 1)]
+            } else {
+                return [...prevs, +number]
+            }
+        })
+    }
+
+    const selectChoiceHandler = (letter) => {
+        setSelectedChoice((prevs) => [
+            ...prevs.slice(0, number - 1),
+            letter,
+            ...prevs.slice(number),
+        ])
+    }
+
+    const toggleQuestionList = () => setOpenQuestionList(!openQuestionList)
+
     const currentQuestion = data.questions[number - 1]
 
     return (
@@ -72,29 +95,43 @@ const TestLivePage = () => {
             <div className='container max-w-4xl pb-28'>
                 {/* Test Info */}
                 <div className='py-5 flex justify-between items-center'>
-                    <div className='flex items-center space-x-4 font-semibold'>
+                    <div className='flex items-center space-x-3 font-semibold'>
                         <span className='badge badge-lg'>
                             Soal {number}/{data.questionsLength}
-                            <span className='badge-warning badge-sm rounded-full ml-2'>
-                                ragu-ragu
-                            </span>
+                            {doubts.includes(+number) && (
+                                <span className='badge-warning badge-sm rounded-full ml-2'>
+                                    ragu-ragu
+                                </span>
+                            )}
                         </span>
                         <span className='badge badge-primary'>
-                            <span>4 terjawab</span>
+                            <span>{selectedChoices.length} terjawab</span>
                         </span>
-                        <span className='badge badge-warning'>
-                            <span>1 ragu-ragu</span>
-                        </span>
+                        {doubts.length > 0 && (
+                            <span className='badge badge-warning'>
+                                <span>{doubts.length} ragu-ragu</span>
+                            </span>
+                        )}
                     </div>
                     <div className='flex space-x-2'>
                         <button className='btn btn-sm btn-success text-white'>
                             <ArrowUpTrayIcon className='w-4 mr-1' />
                             Kumpulkan
                         </button>
-                        <button className='btn btn-sm'>
+                        <button
+                            className='btn btn-sm'
+                            onClick={toggleQuestionList}
+                        >
                             <DocumentTextIcon className='w-4 mr-1' />
                             Daftar Soal
                         </button>
+                        <QuestionListModal
+                            open={openQuestionList}
+                            onClose={toggleQuestionList}
+                            questions={data.questions}
+                            testId={testId}
+                            currentNumber={+number}
+                        />
                     </div>
                 </div>
                 {/* Body Test */}
@@ -112,13 +149,7 @@ const TestLivePage = () => {
                             ([letter, choice]) => (
                                 <button
                                     key={letter}
-                                    onClick={() => {
-                                        setSelectedChoice((prevs) => [
-                                            ...prevs.slice(0, number - 1),
-                                            letter,
-                                            ...prevs.slice(number),
-                                        ])
-                                    }}
+                                    onClick={() => selectChoiceHandler(letter)}
                                     className={twMerge(
                                         'btn btn-ghost normal-case text-left flex flex-nowrap items-center w-full justify-start rounded-md font-normal leading-normal h-auto text-base',
                                         selectedChoices[number - 1] === letter
@@ -140,37 +171,27 @@ const TestLivePage = () => {
                     {/* Action Buttons */}
                     <div className='fixed bottom-0 left-0 w-full py-4 bg-gradient-to-t from-gray-100 to-transparent pointer-events-none'>
                         <div className='container-xl bg-white p-4 rounded-md border flex justify-between shadow shadow-gray-100 pointer-events-auto'>
-                            <Link
-                                href={{
-                                    query: {
-                                        testId,
-                                        number: +number - 1,
-                                    },
-                                }}
-                                shallow
-                                scroll
-                                className={twMerge(
-                                    'btn btn-sm',
-                                    +number === 1 && 'btn-disabled'
-                                )}
-                            >
-                                <ChevronLeftIcon className='w-5' />
-                            </Link>
+                            <div className='tooltip' data-tip='Soal Sebelumnya'>
+                                <Link
+                                    href={{
+                                        query: {
+                                            testId,
+                                            number: +number - 1,
+                                        },
+                                    }}
+                                    shallow
+                                    scroll
+                                    className={twMerge(
+                                        'btn btn-sm',
+                                        +number === 1 && 'btn-disabled'
+                                    )}
+                                >
+                                    <ChevronLeftIcon className='w-5' />
+                                </Link>
+                            </div>
 
                             <button
-                                onClick={() => {
-                                    setDoubts((prevs) => {
-                                        if (prevs.includes(+number)) {
-                                            const index = prevs.indexOf(+number)
-                                            return [
-                                                ...prevs.slice(0, index),
-                                                ...prevs.slice(index + 1),
-                                            ]
-                                        } else {
-                                            return [...prevs, +number]
-                                        }
-                                    })
-                                }}
+                                onClick={setDoubtHandler}
                                 className={twMerge(
                                     'btn btn-sm btn-warning',
                                     !doubts.includes(+number) && 'btn-outline'
@@ -179,37 +200,28 @@ const TestLivePage = () => {
                                 Ragu-Ragu
                             </button>
 
-                            <Link
-                                href={{
-                                    query: {
-                                        testId,
-                                        number: +number + 1,
-                                    },
-                                }}
-                                shallow
-                                scroll
-                                className={twMerge(
-                                    'btn btn-sm',
-                                    +number === data.questionsLength &&
-                                        'btn-disabled'
-                                )}
+                            <div
+                                className='tooltip'
+                                data-tip='Soal Selanjutnya'
                             >
-                                <ChevronRightIcon className='w-5' />
-                            </Link>
-                            {/* <div className='space-x-2'>
-                                
-                                <button
+                                <Link
+                                    href={{
+                                        query: {
+                                            testId,
+                                            number: +number + 1,
+                                        },
+                                    }}
+                                    shallow
+                                    scroll
                                     className={twMerge(
-                                        'btn btn-success btn-sm btn-outline',
-                                        selectedChoices.length !==
-                                            data.questionsLength ||
-                                            (doubts.length !== 0 &&
-                                                'btn-disabled border-gray-300 text-gray-400')
+                                        'btn btn-sm',
+                                        +number === data.questionsLength &&
+                                            'btn-disabled'
                                     )}
                                 >
-                                    Kumpulkan
-                                </button>
-                            </div> */}
+                                    <ChevronRightIcon className='w-5' />
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

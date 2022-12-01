@@ -66,7 +66,7 @@ const TestLiveNavbar = ({ title }) => {
                             >
                                 <div className='w-3 h-3 bg-success rounded-full'></div>
                             </div>
-                            <button className='btn btn-ghost'>
+                            <button className='btn btn-xs btn-ghost'>
                                 <span className='countdown font-mono text-lg'>
                                     <span
                                         style={{
