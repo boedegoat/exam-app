@@ -41,7 +41,7 @@ const HomeLayout = ({ children, home = true, centerText, title }) => {
             <HomeNavbar home={home} centerText={centerText} />
             <div className='container-xl mt-10 mb-8'>
                 {home && (
-                    <div className='tabs !flex-nowrap overflow-x-auto mb-8'>
+                    <div className='tabs flex-nowrap overflow-x-auto mb-8'>
                         {tabs.map((tab, index) => {
                             const tabSlug = makeSlug(tab.name)
 
@@ -50,7 +50,7 @@ const HomeLayout = ({ children, home = true, centerText, title }) => {
                                     key={index}
                                     href={index === 0 ? '/' : `/${tabSlug}`}
                                     className={twMerge(
-                                        'tab w-full !flex-nowrap whitespace-nowrap tab-bordered',
+                                        'tab w-full flex-nowrap whitespace-nowrap tab-bordered',
                                         activeTab === tabSlug && 'tab-active'
                                     )}
                                 >

@@ -1,10 +1,46 @@
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
-import { useEffect } from 'react'
+import {
+    ArrowUpTrayIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    DocumentTextIcon,
+} from '@heroicons/react/24/outline'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/router'
+import Head from 'next/head'
+import { twMerge } from 'tailwind-merge'
+import Link from 'next/link'
+import { useLocalStorage } from 'usehooks-ts'
 
 import TestLiveNavbar from '@/layout/test-live/TestLiveNavbar'
-import Head from 'next/head'
+import { tests } from '@/dummy/tests'
 
 const TestLivePage = () => {
+    const router = useRouter()
+    const { testId, number } = router.query
+    const [loading, setLoading] = useState(true)
+    const [selectedChoices, setSelectedChoice] = useLocalStorage(
+        'selectedChoices',
+        []
+    )
+    const [doubts, setDoubts] = useLocalStorage('doubts', [])
+    const data = useMemo(
+        () => tests.find((test) => test.id === testId),
+        [testId]
+    )
+
+    useEffect(() => {
+        setLoading(true)
+        if (!data) return
+        // error handling
+        if (isNaN(number) || +number < 1 || +number > data.questionsLength) {
+            router.push({ query: { testId, number: 1 } }, null, {
+                shallow: true,
+            })
+            return
+        }
+        setLoading(false)
+    }, [router, data, number, testId])
+
     useEffect(() => {
         if (typeof document.hidden === 'undefined') {
             alert("Your browser doesn't support running test")
@@ -23,129 +59,157 @@ const TestLivePage = () => {
             document.removeEventListener('visibilitychange', onPageHidden)
     }, [])
 
+    if (loading) return null
+
+    const currentQuestion = data.questions[number - 1]
+
     return (
         <main>
             <Head>
-                <title>apakek</title>
+                <title>{data.title}</title>
             </Head>
-            <TestLiveNavbar title='apakek' />
-            <div className='container mb-8'>
-                <div className='py-5 flex items-center space-x-4'>
-                    <div
-                        className='tooltip tooltip-bottom flex-[1]'
-                        data-tip='Buka Daftar Soal'
-                    >
-                        <button className='btn btn-ghost w-full !flex !flex-nowrap !items-center !space-x-4'>
-                            <span className='whitespace-nowrap'>
-                                Soal No. 5
+            <TestLiveNavbar title={data.title} />
+            <div className='container max-w-4xl pb-28'>
+                {/* Test Info */}
+                <div className='py-5 flex justify-between items-center'>
+                    <div className='flex items-center space-x-4 font-semibold'>
+                        <span className='badge badge-lg'>
+                            Soal {number}/{data.questionsLength}
+                            <span className='badge-warning badge-sm rounded-full ml-2'>
+                                ragu-ragu
                             </span>
-                            <progress
-                                className='progress w-full'
-                                value='4'
-                                max='30'
-                            ></progress>
-                            <ChevronRightIcon className='w-5' />
+                        </span>
+                        <span className='badge badge-primary'>
+                            <span>4 terjawab</span>
+                        </span>
+                        <span className='badge badge-warning'>
+                            <span>1 ragu-ragu</span>
+                        </span>
+                    </div>
+                    <div className='flex space-x-2'>
+                        <button className='btn btn-sm btn-success text-white'>
+                            <ArrowUpTrayIcon className='w-4 mr-1' />
+                            Kumpulkan
+                        </button>
+                        <button className='btn btn-sm'>
+                            <DocumentTextIcon className='w-4 mr-1' />
+                            Daftar Soal
                         </button>
                     </div>
-                    <div className='flex whitespace-nowrap space-x-2 text-sm'>
-                        <span className='bg-primary px-1.5 rounded-md font-medium py-0.5 text-white'>
-                            4 terjawab
-                        </span>
-                        <span className='bg-warning px-1.5 rounded-md font-medium py-0.5'>
-                            1 ragu-ragu
-                        </span>
-                    </div>
                 </div>
-                <div className='flex items-start space-x-8'>
-                    <div className='flex-[1]'>
-                        <div className='prose bg-white p-4 border rounded-md select-none'>
-                            <p>
-                                Berbagai penelitian telah membuktikan manfaat
-                                kopi bagi tubuh, mulai dari meningkatkan suasana
-                                hati dan metabolisme tubuh hingga menurunkan
-                                risiko terjadinya penyakit kardiovaskular,
-                                diabetes tipe 2, penyakit Parkinson, asam urat,
-                                dan kanker. Jika dikonsumsi dalam jumlah yang
-                                sesuai, yaitu tidak lebih dari 2–3 cangkir per
-                                hari, kopi umumnya aman bagi orang dewasa dan
-                                tidak merugikan kesehatan. Namun, efek samping
-                                kopi dapat muncul saat kopi dikonsumsi dalam
-                                jumlah yang berlebih, yaitu lebih dari 4 cangkir
-                                kopi per hari. sumber: alodokter.com
-                            </p>
-                            <p>Mana kesimpulan yang paling benar?</p>
+                {/* Body Test */}
+                <div className=''>
+                    {/* Question */}
+                    <div className='bg-white p-4 border rounded-md select-none'>
+                        <div className='prose max-w-none text-black'>
+                            <p>{currentQuestion.question}</p>
                         </div>
                     </div>
-                    <div className='flex-[1]'>
-                        <div className='shadow shadow-gray-100 bg-white rounded-md border p-1'>
-                            <div className='navbar justify-between'>
-                                <div className='space-x-2 flex items-center'>
-                                    <button className='btn btn-sm btn-outline btn-circle'>
-                                        <ChevronLeftIcon className='w-5' />
-                                    </button>
-                                    <button className='btn btn-sm btn-warning btn-outline'>
-                                        Ragu-Ragu
-                                    </button>
-                                    <button className='btn btn-sm btn-outline btn-circle'>
-                                        <ChevronRightIcon className='w-5' />
-                                    </button>
-                                </div>
-                                <div>
-                                    <button className='btn btn-success btn-sm btn-disabled'>
-                                        Kumpulkan
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div className='space-y-4 mt-4'>
-                            <button className='btn btn-ghost !normal-case !text-left !flex !flex-nowrap !items-stretch w-full !bg-blue-100 !justify-start !border !border-blue-200 !rounded-md !font-normal !leading-normal !h-auto hover:bg-gray-200/50'>
-                                <div className='mr-2 flex items-center text-blue-500 p-2 pr-5 border-r border-blue-200'>
-                                    A
-                                </div>
-                                <div className='p-2 my-auto'>
-                                    Banyak remaja yang sudah mulai mengonsumsi
-                                    kopi secara rutin
-                                </div>
+
+                    {/* Answer */}
+                    <div className='shadow shadow-gray-100 bg-white rounded-md border p-4 mt-4 space-y-2'>
+                        {Object.entries(currentQuestion.choices).map(
+                            ([letter, choice]) => (
+                                <button
+                                    key={letter}
+                                    onClick={() => {
+                                        setSelectedChoice((prevs) => [
+                                            ...prevs.slice(0, number - 1),
+                                            letter,
+                                            ...prevs.slice(number),
+                                        ])
+                                    }}
+                                    className={twMerge(
+                                        'btn btn-ghost normal-case text-left flex flex-nowrap items-center w-full justify-start rounded-md font-normal leading-normal h-auto text-base',
+                                        selectedChoices[number - 1] === letter
+                                            ? 'bg-blue-100 border-blue-200 hover:bg-blue-100'
+                                            : 'hover:bg-gray-200'
+                                    )}
+                                >
+                                    <span className='badge'>
+                                        {letter.toUpperCase()}
+                                    </span>
+                                    <div className='p-2 ml-3 my-auto'>
+                                        {choice}
+                                    </div>
+                                </button>
+                            )
+                        )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className='fixed bottom-0 left-0 w-full py-4 bg-gradient-to-t from-gray-100 to-transparent pointer-events-none'>
+                        <div className='container-xl bg-white p-4 rounded-md border flex justify-between shadow shadow-gray-100 pointer-events-auto'>
+                            <Link
+                                href={{
+                                    query: {
+                                        testId,
+                                        number: +number - 1,
+                                    },
+                                }}
+                                shallow
+                                scroll
+                                className={twMerge(
+                                    'btn btn-sm',
+                                    +number === 1 && 'btn-disabled'
+                                )}
+                            >
+                                <ChevronLeftIcon className='w-5' />
+                            </Link>
+
+                            <button
+                                onClick={() => {
+                                    setDoubts((prevs) => {
+                                        if (prevs.includes(+number)) {
+                                            const index = prevs.indexOf(+number)
+                                            return [
+                                                ...prevs.slice(0, index),
+                                                ...prevs.slice(index + 1),
+                                            ]
+                                        } else {
+                                            return [...prevs, +number]
+                                        }
+                                    })
+                                }}
+                                className={twMerge(
+                                    'btn btn-sm btn-warning',
+                                    !doubts.includes(+number) && 'btn-outline'
+                                )}
+                            >
+                                Ragu-Ragu
                             </button>
-                            <button className='btn btn-ghost !normal-case !text-left !flex !flex-nowrap !items-stretch w-full !bg-white !justify-start !border !border-gray-200 !rounded-md !font-normal !leading-normal !h-auto hover:!bg-gray-200/50'>
-                                <div className='mr-2 flex items-center text-gray-400 p-2 pr-5 border-r'>
-                                    B
-                                </div>
-                                <div className='p-2 my-auto'>
-                                    Kopi menjadi minuman favorit banyak orang
-                                    karena khasiatnya
-                                </div>
-                            </button>
-                            <button className='btn btn-ghost !normal-case !text-left !flex !flex-nowrap !items-stretch w-full !bg-white !justify-start !border !border-gray-200 !rounded-md !font-normal !leading-normal !h-auto hover:!bg-gray-200/50'>
-                                <div className='mr-2 flex items-center text-gray-400 p-2 pr-5 border-r'>
-                                    C
-                                </div>
-                                <div className='p-2 my-auto'>
-                                    Efek samping kopi yang negatif dapat muncul
-                                    walaupun dikonsumsi tidak lebih dari 4
-                                    cangkir kopi per hari
-                                </div>
-                            </button>
-                            <button className='btn btn-ghost !normal-case !text-left !flex !flex-nowrap !items-stretch w-full !bg-white !justify-start !border !border-gray-200 !rounded-md !font-normal !leading-normal !h-auto hover:!bg-gray-200/50'>
-                                <div className='mr-2 flex items-center text-gray-400 p-2 pr-5 border-r'>
-                                    D
-                                </div>
-                                <div className='p-2 my-auto'>
-                                    Minum kopi itu aman dan tidak merugikan
-                                    kesehatan apabila diminum 1 cangkir saja per
-                                    harinya
-                                </div>
-                            </button>
-                            <button className='btn btn-ghost !normal-case !text-left !flex !flex-nowrap !items-stretch w-full !bg-white !justify-start !border !border-gray-200 !rounded-md !font-normal !leading-normal !h-auto hover:!bg-gray-200/50'>
-                                <div className='mr-2 flex items-center text-gray-400 p-2 pr-5 border-r'>
-                                    E
-                                </div>
-                                <div className='p-2 my-auto'>
-                                    Kalau sistem kekebalan mengenal dan
-                                    mengingat suatu antigen, berarti antigen itu
-                                    disuntikkan ke dalam tubuh
-                                </div>
-                            </button>
+
+                            <Link
+                                href={{
+                                    query: {
+                                        testId,
+                                        number: +number + 1,
+                                    },
+                                }}
+                                shallow
+                                scroll
+                                className={twMerge(
+                                    'btn btn-sm',
+                                    +number === data.questionsLength &&
+                                        'btn-disabled'
+                                )}
+                            >
+                                <ChevronRightIcon className='w-5' />
+                            </Link>
+                            {/* <div className='space-x-2'>
+                                
+                                <button
+                                    className={twMerge(
+                                        'btn btn-success btn-sm btn-outline',
+                                        selectedChoices.length !==
+                                            data.questionsLength ||
+                                            (doubts.length !== 0 &&
+                                                'btn-disabled border-gray-300 text-gray-400')
+                                    )}
+                                >
+                                    Kumpulkan
+                                </button>
+                            </div> */}
                         </div>
                     </div>
                 </div>

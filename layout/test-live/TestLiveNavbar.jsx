@@ -1,6 +1,22 @@
 import { Bars3BottomLeftIcon } from '@heroicons/react/24/outline'
+import { useEffect, useState } from 'react'
 
 const TestLiveNavbar = ({ title }) => {
+    const [countdown, setCountdown] = useState(2 * 60 * 60 * 1000)
+
+    useEffect(() => {
+        let interval = setInterval(() => {
+            setCountdown((prev) => prev - 1000)
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [])
+
+    const [hours, minutes, seconds] = new Date(countdown)
+        .toISOString()
+        .slice(11, 19)
+        .split(':')
+
     return (
         <>
             <div className='sticky top-0 z-[999] shadow-lg shadow-gray-100 bg-white'>
@@ -50,7 +66,27 @@ const TestLiveNavbar = ({ title }) => {
                             >
                                 <div className='w-3 h-3 bg-success rounded-full'></div>
                             </div>
-                            <button className='btn btn-ghost'>01:59:20</button>
+                            <button className='btn btn-ghost'>
+                                <span className='countdown font-mono text-lg'>
+                                    <span
+                                        style={{
+                                            '--value': hours,
+                                        }}
+                                    ></span>
+                                    :
+                                    <span
+                                        style={{
+                                            '--value': minutes,
+                                        }}
+                                    ></span>
+                                    :
+                                    <span
+                                        style={{
+                                            '--value': seconds,
+                                        }}
+                                    ></span>
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>

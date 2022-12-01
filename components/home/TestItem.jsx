@@ -23,7 +23,7 @@ const TestItem = ({ data }) => {
                 >
                     {data.status}
                 </span>
-                <h3 className='!mt-1 !mb-2'>{data.title}</h3>
+                <h3 className='mt-1 mb-2'>{data.title}</h3>
                 <div className='flex items-center space-x-3 text-sm'>
                     <div className='flex items-center'>
                         <ClockIcon className='w-4 mr-1' />

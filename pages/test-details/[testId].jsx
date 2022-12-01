@@ -21,7 +21,7 @@ const TestDetailsPage = () => {
                     <h4>Ditugaskan oleh</h4>
                     <div className='flex mt-2'>
                         <img
-                            className='rounded-full w-10 !m-0 !mr-2'
+                            className='rounded-full w-10 m-0 mr-2'
                             src='https://placeimg.com/80/80/people'
                         />
                         <div className='text-sm'>
@@ -66,7 +66,7 @@ const TestDetailsPage = () => {
             </div>
             <div className='mt-5'>
                 <Link
-                    href={'/test-live/' + data.id}
+                    href={'/test-live/' + data.id + '?number=1'}
                     className={twMerge(
                         'btn btn-primary w-full',
                         data.status !== 'live' && 'btn-disabled'
