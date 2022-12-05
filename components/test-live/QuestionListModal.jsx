@@ -10,8 +10,13 @@ const QuestionListModal = ({
     testId,
     currentNumber,
 }) => {
-    const selectedChoices = JSON.parse(localStorage.selectedChoices)
-    const doubts = JSON.parse(localStorage.doubts)
+    const selectedChoices = localStorage.selectedChoices
+        ? JSON.parse(localStorage.selectedChoices)
+        : []
+    const doubts = localStorage.doubts ? JSON.parse(localStorage.doubts) : []
+    const cheatedNumbers = localStorage.cheatedNumbers
+        ? JSON.parse(localStorage.cheatedNumbers)
+        : []
 
     return (
         <Modal open={open}>
@@ -49,7 +54,7 @@ const QuestionListModal = ({
                                 currentNumber === number && 'border-gray-600'
                             )}
                         >
-                            {number}
+                            {number} {cheatedNumbers.includes(number) && '🔒'}
                         </Link>
                     )
                 })}

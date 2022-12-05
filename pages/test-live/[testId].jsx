@@ -19,11 +19,16 @@ const TestLivePage = () => {
     const router = useRouter()
     const { testId, number } = router.query
     const [loading, setLoading] = useState(true)
+    const [isPageHidden, setIsPageHidden] = useState(false)
     const [selectedChoices, setSelectedChoice] = useLocalStorage(
         'selectedChoices',
         []
     )
     const [doubts, setDoubts] = useLocalStorage('doubts', [])
+    const [cheatedNumbers, setCheatedNumbers] = useLocalStorage(
+        'cheatedNumbers',
+        []
+    )
     const data = useMemo(
         () => tests.find((test) => test.id === testId),
         [testId]
@@ -44,22 +49,35 @@ const TestLivePage = () => {
     }, [router, data, number, testId])
 
     useEffect(() => {
-        if (typeof document.hidden === 'undefined') {
+        if (typeof document.visibilityState === 'undefined') {
             alert("Your browser doesn't support running test")
             return
         }
 
         const onPageHidden = () => {
-            if (document.hidden) {
-                // alert('Hayo kamu mau ngapain')
-            }
+            setTimeout(() => {
+                if (document.visibilityState == 'hidden') {
+                    setIsPageHidden(true)
+                    setCheatedNumbers((prevs) => {
+                        if (prevs.includes(+number)) return prevs
+                        setTimeout(() => {
+                            alert(
+                                'Maaf, Soal ini dikunci dan tidak bisa Anda jawab karena Anda telah melakukan aktivitas yang mencurigakan 😶'
+                            )
+                        })
+                        return [...prevs, +number]
+                    })
+                } else {
+                    setIsPageHidden(false)
+                }
+            })
         }
 
         document.addEventListener('visibilitychange', onPageHidden)
 
         return () =>
             document.removeEventListener('visibilitychange', onPageHidden)
-    }, [])
+    }, [data, number, setCheatedNumbers])
 
     if (loading) return null
 
@@ -89,7 +107,7 @@ const TestLivePage = () => {
     return (
         <main>
             <Head>
-                <title>{data.title}</title>
+                <title>{isPageHidden ? 'Hayo mau ngapain' : data.title}</title>
             </Head>
             <TestLiveNavbar title={data.title} />
             <div className='container max-w-4xl pb-28'>
@@ -98,6 +116,16 @@ const TestLivePage = () => {
                     <div className='flex items-center space-x-3 font-semibold'>
                         <span className='badge badge-lg'>
                             Soal {number}/{data.questionsLength}
+                            {cheatedNumbers.includes(+number) && (
+                                <div
+                                    className='tooltip tooltip-bottom'
+                                    data-tip='Soal dikunci karena Anda telah melakukan aktivitas yang mencurigakan'
+                                >
+                                    <span className='badge bg-gray-500 badge-sm rounded-full ml-2'>
+                                        dikunci 🔒
+                                    </span>
+                                </div>
+                            )}
                             {doubts.includes(+number) && (
                                 <span className='badge-warning badge-sm rounded-full ml-2'>
                                     ragu-ragu
@@ -144,29 +172,34 @@ const TestLivePage = () => {
                     </div>
 
                     {/* Answer */}
-                    <div className='shadow shadow-gray-100 bg-white rounded-md border p-4 mt-4 space-y-2'>
-                        {Object.entries(currentQuestion.choices).map(
-                            ([letter, choice]) => (
-                                <button
-                                    key={letter}
-                                    onClick={() => selectChoiceHandler(letter)}
-                                    className={twMerge(
-                                        'btn btn-ghost normal-case text-left flex flex-nowrap items-center w-full justify-start rounded-md font-normal leading-normal h-auto text-base',
-                                        selectedChoices[number - 1] === letter
-                                            ? 'bg-blue-100 border-blue-200 hover:bg-blue-100'
-                                            : 'hover:bg-gray-200'
-                                    )}
-                                >
-                                    <span className='badge'>
-                                        {letter.toUpperCase()}
-                                    </span>
-                                    <div className='p-2 ml-3 my-auto'>
-                                        {choice}
-                                    </div>
-                                </button>
-                            )
-                        )}
-                    </div>
+                    {!cheatedNumbers.includes(+number) && (
+                        <div className='shadow shadow-gray-100 bg-white rounded-md border p-4 mt-4 space-y-2'>
+                            {Object.entries(currentQuestion.choices).map(
+                                ([letter, choice]) => (
+                                    <button
+                                        key={letter}
+                                        onClick={() =>
+                                            selectChoiceHandler(letter)
+                                        }
+                                        className={twMerge(
+                                            'btn btn-ghost normal-case text-left flex flex-nowrap items-center w-full justify-start rounded-md font-normal leading-normal h-auto text-base',
+                                            selectedChoices[number - 1] ===
+                                                letter
+                                                ? 'bg-blue-100 border-blue-200 hover:bg-blue-100'
+                                                : 'hover:bg-gray-200'
+                                        )}
+                                    >
+                                        <span className='badge'>
+                                            {letter.toUpperCase()}
+                                        </span>
+                                        <div className='p-2 ml-3 my-auto'>
+                                            {choice}
+                                        </div>
+                                    </button>
+                                )
+                            )}
+                        </div>
+                    )}
 
                     {/* Action Buttons */}
                     <div className='fixed bottom-0 left-0 w-full py-4 bg-gradient-to-t from-gray-100 to-transparent pointer-events-none'>
@@ -196,6 +229,7 @@ const TestLivePage = () => {
                                     'btn btn-sm btn-warning',
                                     !doubts.includes(+number) && 'btn-outline'
                                 )}
+                                disabled={cheatedNumbers.includes(+number)}
                             >
                                 Ragu-Ragu
                             </button>
