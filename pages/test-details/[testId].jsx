@@ -25,7 +25,7 @@ const TestDetailsPage = () => {
                             src='https://placeimg.com/80/80/people'
                         />
                         <div className='text-sm'>
-                            <h5 className='font-semibold'>Udin Suparnyo</h5>
+                            <h5 className='font-semibold'>Otong</h5>
                             <div className=''>Guru apakek</div>
                         </div>
                     </div>

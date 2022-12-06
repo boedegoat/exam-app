@@ -9,15 +9,10 @@ const QuestionListModal = ({
     questions,
     testId,
     currentNumber,
+    selectedChoices,
+    doubts,
+    cheatedNumbers,
 }) => {
-    const selectedChoices = localStorage.selectedChoices
-        ? JSON.parse(localStorage.selectedChoices)
-        : []
-    const doubts = localStorage.doubts ? JSON.parse(localStorage.doubts) : []
-    const cheatedNumbers = localStorage.cheatedNumbers
-        ? JSON.parse(localStorage.cheatedNumbers)
-        : []
-
     return (
         <Modal open={open}>
             <Modal.Header className='font-bold flex justify-between items-center'>
