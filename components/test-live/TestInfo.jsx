@@ -56,11 +56,7 @@ const TestInfo = ({
                     <ArrowUpTrayIcon className='w-4 mr-1' />
                     Kumpulkan
                 </button>
-                <button
-                    className='btn btn-sm'
-                    onClick={toggleQuestionList}
-                    htmlFor='question-list-modal'
-                >
+                <button className='btn btn-sm' onClick={toggleQuestionList}>
                     <DocumentTextIcon className='w-4 mr-1' />
                     Daftar Soal
                 </button>

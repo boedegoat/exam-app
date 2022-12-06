@@ -14,7 +14,7 @@ const QuestionListModal = ({
     cheatedNumbers,
 }) => {
     return (
-        <Modal open={open}>
+        <Modal open={open} onClickBackdrop={onClose}>
             <Modal.Header className='font-bold flex justify-between items-center'>
                 <div>Daftar Soal</div>
                 <button
@@ -40,16 +40,25 @@ const QuestionListModal = ({
                             shallow
                             scroll
                             onClick={onClose}
-                            className={twMerge(
-                                'px-5 py-3 border-2 rounded-md',
-                                selectedChoices[index] &&
-                                    'bg-blue-100 border-blue-200',
-                                doubts.includes(number) &&
-                                    'bg-warning border-warning',
-                                currentNumber === number && 'border-gray-600'
-                            )}
                         >
-                            {number} {cheatedNumbers.includes(number) && '🔒'}
+                            <div className='indicator'>
+                                {cheatedNumbers.includes(number) && (
+                                    <span className='indicator-item'>🔒</span>
+                                )}
+                                <div
+                                    className={twMerge(
+                                        'px-5 py-3 border-2 rounded-md',
+                                        selectedChoices[index] &&
+                                            'bg-blue-100 border-blue-200',
+                                        doubts.includes(number) &&
+                                            'bg-warning border-warning',
+                                        currentNumber === number &&
+                                            'border-gray-600'
+                                    )}
+                                >
+                                    {number}
+                                </div>
+                            </div>
                         </Link>
                     )
                 })}

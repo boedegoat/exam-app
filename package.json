@@ -13,6 +13,7 @@
     "@tailwindcss/typography": "^0.5.8",
     "daisyui": "^2.42.1",
     "next": "^13.0.5",
+    "next-transpile-modules": "^10.0.0",
     "react": "18.2.0",
     "react-countdown": "^2.3.5",
     "react-daisyui": "^2.4.6",
