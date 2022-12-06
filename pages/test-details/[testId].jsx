@@ -43,8 +43,8 @@ const TestDetailsPage = () => {
                         <li>Berpindah tab</li>
                         <li>Membuka aplikasi lain</li>
                         <li>
-                            Pindah aplikasi dengan <kdb>alt</kdb> +{' '}
-                            <kdb>tab</kdb>
+                            Pindah aplikasi dengan <kbd>alt</kbd> +{' '}
+                            <kbd>tab</kbd>
                         </li>
                         <li>Mengklik area diluar area tes</li>
                     </ul>
