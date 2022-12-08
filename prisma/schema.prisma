@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+enum Role {
+    ADMIN
+    TEACHER
+    STUDENT
+}
+
+model User {
+    id           String       @id @default(auto()) @map("_id") @db.ObjectId
+    fullName     String
+    username     String       @unique
+    password     String
+    role         Role
+    testsCreated Test[]
+    testSession  TestSession?
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
+}
+
+model Test {
+    id           String        @id @default(auto()) @map("_id") @db.ObjectId
+    userId       String        @db.ObjectId
+    createdBy    User          @relation(fields: [userId], references: [id])
+    name         String
+    description  String?
+    startDate    DateTime?
+    endDate      DateTime?
+    questions    Question[]
+    testSessions TestSession[]
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+}
+
+model Question {
+    id                            String                         @id @default(auto()) @map("_id") @db.ObjectId
+    testId                        String                         @db.ObjectId
+    test                          Test                           @relation(fields: [testId], references: [id])
+    questionText                  String
+    multipleChoicesAnswer         MultipleChoicesAnswer[]
+    sessionMultipleChoicesAnswers SessionMultipleChoicesAnswer[]
+    createdAt                     DateTime                       @default(now())
+    updatedAt                     DateTime                       @updatedAt
+}
+
+model MultipleChoicesAnswer {
+    id                           String                         @id @default(auto()) @map("_id") @db.ObjectId
+    questionId                   String                         @db.ObjectId
+    question                     Question                       @relation(fields: [questionId], references: [id])
+    answerText                   String
+    isRightAnswer                Boolean                        @default(false)
+    sessionMultipleChoicesAnswer SessionMultipleChoicesAnswer[]
+    createdAt                    DateTime                       @default(now())
+    updatedAt                    DateTime                       @updatedAt
+}
+
+model TestSession {
+    id                     String                         @id @default(auto()) @map("_id") @db.ObjectId
+    userId                 String                         @unique @db.ObjectId
+    user                   User                           @relation(fields: [userId], references: [id])
+    testId                 String                         @db.ObjectId
+    test                   Test                           @relation(fields: [testId], references: [id])
+    multipleChoicesAnswers SessionMultipleChoicesAnswer[]
+    isSubmitted            Boolean?                       @default(false)
+    createdAt              DateTime                       @default(now())
+    updatedAt              DateTime                       @updatedAt
+}
+
+model SessionMultipleChoicesAnswer {
+    id            String                @id @default(auto()) @map("_id") @db.ObjectId
+    testSessionId String                @db.ObjectId
+    testSession   TestSession           @relation(fields: [testSessionId], references: [id])
+    questionId    String                @db.ObjectId
+    question      Question              @relation(fields: [questionId], references: [id])
+    selectedId    String                @db.ObjectId
+    selected      MultipleChoicesAnswer @relation(fields: [selectedId], references: [id])
+    isDoubt       Boolean?              @default(false)
+    isLocked      Boolean?              @default(false)
+    createdAt     DateTime              @default(now())
+    updatedAt     DateTime              @updatedAt
+}
